@@ -29,3 +29,9 @@ A Flask-based web application that allows businesses to upload bills/invoices (P
    ```bash
    git clone https://github.com/Preetii18/Business_Management.git
    cd Business_Management
+   
+2. Install dependencies:
+  pip install -r requirements.txt
+
+4. Run the app:
+  python app.py
