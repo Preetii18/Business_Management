@@ -1,22 +1,43 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 import os
-from utils.parser import parse_bill_pdf, parse_bill_image
+from utils.parser import parse_bill_pdf, parse_bill_image 
+from models import db, Bill
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+
 
 # Uploads and config
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-@app.route('/')
-def homee():
-    return render_template('upload.html')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/business.db'
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
+
+@app.route('/dashboard')
+def dashboard():
+    # Placeholder values — connect to real data later
+    total_sales = 5
+    total_purchases = 3
+    labels = ['Jan', 'Feb', 'Mar']
+    sales_data = [10000, 12000, 9000]
+    purchase_data = [8000, 11000, 7500]
+
+    return render_template('dashboard.html',
+                           total_sales=total_sales,
+                           total_purchases=total_purchases,
+                           labels=labels,
+                           sales_data=sales_data,
+                           purchase_data=purchase_data)
 
 
-# Home route — optional redirect to upload
+# Optional redirect from home page
 @app.route('/')
 def home():
-    return render_template('upload.html')
+    return redirect(url_for('upload_bill'))
 
 # Upload route
 @app.route('/upload', methods=['GET', 'POST'])
@@ -44,4 +65,5 @@ def upload_bill():
 # Start the server
 if __name__ == '__main__':
     app.run(debug=True)
+
 
