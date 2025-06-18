@@ -32,6 +32,19 @@ def dashboard():
                            labels=labels,
                            sales_data=sales_data,
                            purchase_data=purchase_data)
+@app.route('/search')
+def search():
+    query = request.args.get('q')
+    results = Bill.query.filter(Bill.customer_name.ilike(f"%{query}%")).all()
+
+    return render_template('dashboard.html',
+                           bills=results,
+                           total_sales=len([b for b in results if b.type == 'sale']),
+                           total_purchases=len([b for b in results if b.type == 'purchase']),
+                           labels=[],
+                           sales_data=[],
+                           purchase_data=[])
+
 
 
 # Optional redirect from home page
