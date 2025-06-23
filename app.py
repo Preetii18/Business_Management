@@ -14,24 +14,44 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/business.db'
 db.init_app(app)
 
+@app.route('/dashboard')
+def dashboard():
+    from models import Sale, Purchase
 with app.app_context():
     db.create_all()
 
-@app.route('/dashboard')
-def dashboard():
-    # Placeholder values — connect to real data later
-    total_sales = 5
-    total_purchases = 3
-    labels = ['Jan', 'Feb', 'Mar']
-    sales_data = [10000, 12000, 9000]
-    purchase_data = [8000, 11000, 7500]
+  # Fetch total count
+    total_sales = Sale.query.count()
+    total_purchases = Purchase.query.count()
 
-    return render_template('dashboard.html',
-                           total_sales=total_sales,
-                           total_purchases=total_purchases,
-                           labels=labels,
-                           sales_data=sales_data,
-                           purchase_data=purchase_data)
+    # Monthly Sales (grouped by month)
+    sales_by_month = db.session.execute("""
+        SELECT strftime('%Y-%m', date) as month, SUM(total) as total
+        FROM sale GROUP BY month
+    """).fetchall()
+
+    purchase_by_month = db.session.execute("""
+        SELECT strftime('%Y-%m', date) as month, SUM(total) as total
+        FROM purchase GROUP BY month
+    """).fetchall()
+
+    # Extract months and values
+    sales_labels = [row[0] for row in sales_by_month]
+    sales_data = [row[1] for row in sales_by_month]
+
+    purchase_labels = [row[0] for row in purchase_by_month]
+    purchase_data = [row[1] for row in purchase_by_month]
+
+ return render_template(
+        'dashboard.html',
+        total_sales=total_sales,
+        total_purchases=total_purchases,
+        sales_labels=sales_labels,
+        sales_data=sales_data,
+        purchase_labels=purchase_labels,
+        purchase_data=purchase_data
+    )
+
 @app.route('/search')
 def search():
     query = request.args.get('q')
