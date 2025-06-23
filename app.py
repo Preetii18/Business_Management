@@ -46,6 +46,18 @@ def search():
                            purchase_data=[])
 
 
+@app.route('/monthly-summary')
+def monthly_summary():
+    from collections import defaultdict
+    sales_by_month = defaultdict(float)
+    bills = Bill.query.all()
+    for bill in bills:
+        month = bill.date.strftime('%B %Y')
+        if bill.bill_type == 'sale':
+            sales_by_month[month] += bill.total
+    return render_template('monthly_summary.html', data=sales_by_month)
+
+
 
 # Optional redirect from home page
 @app.route('/')
