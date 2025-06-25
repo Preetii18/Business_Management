@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template, redirect, url_for
 import os
 from utils.parser import parse_bill_pdf, parse_bill_image 
@@ -11,7 +12,8 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/business.db'
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'instance/business.db')
 db.init_app(app)
 
 # Create tables if not already created
@@ -108,6 +110,4 @@ def upload_bill():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
 
