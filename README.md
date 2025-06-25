@@ -35,3 +35,5 @@ A Flask-based web application that allows businesses to upload bills/invoices (P
 
 4. Run the app:
   python app.py
+### Current status Screenshot 
+![image](https://github.com/user-attachments/assets/f1e6012e-4550-43d2-b461-a85ca1e18aea)
