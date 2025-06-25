@@ -1,11 +1,11 @@
 from flask import Flask, request, render_template, redirect, url_for
 import os
 from utils.parser import parse_bill_pdf, parse_bill_image 
-from models import db, Bill
+from models import db, Bill, Sale, Purchase
 from flask_sqlalchemy import SQLAlchemy
+from collections import defaultdict
 
 app = Flask(__name__)
-
 
 # Uploads and config
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -14,13 +14,14 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/business.db'
 db.init_app(app)
 
-@app.route('/dashboard')
-def dashboard():
-    from models import Sale, Purchase
+# Create tables if not already created
 with app.app_context():
     db.create_all()
 
-  # Fetch total count
+
+@app.route('/dashboard')
+def dashboard():
+    # Fetch total count
     total_sales = Sale.query.count()
     total_purchases = Purchase.query.count()
 
@@ -42,7 +43,7 @@ with app.app_context():
     purchase_labels = [row[0] for row in purchase_by_month]
     purchase_data = [row[1] for row in purchase_by_month]
 
- return render_template(
+    return render_template(
         'dashboard.html',
         total_sales=total_sales,
         total_purchases=total_purchases,
@@ -51,6 +52,7 @@ with app.app_context():
         purchase_labels=purchase_labels,
         purchase_data=purchase_data
     )
+
 
 @app.route('/search')
 def search():
@@ -68,7 +70,6 @@ def search():
 
 @app.route('/monthly-summary')
 def monthly_summary():
-    from collections import defaultdict
     sales_by_month = defaultdict(float)
     bills = Bill.query.all()
     for bill in bills:
@@ -78,13 +79,11 @@ def monthly_summary():
     return render_template('monthly_summary.html', data=sales_by_month)
 
 
-
-# Optional redirect from home page
 @app.route('/')
 def home():
     return redirect(url_for('upload_bill'))
 
-# Upload route
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_bill():
     if request.method == 'POST':
@@ -104,11 +103,11 @@ def upload_bill():
         # Show extracted data on same page
         return render_template('upload.html', data=data, bill_type=bill_type)
 
-    # GET method: show form
     return render_template('upload.html')
 
-# Start the server
+
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
