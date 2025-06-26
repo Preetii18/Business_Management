@@ -73,7 +73,16 @@
 
 </div>
 
-<!-- Chart Scripts -->
+<!-- Chart Scripts --><!-- Charts -->
+<div class="row">
+    <div class="col-md-6">
+        <canvas id="salesChart"></canvas>
+    </div>
+    <div class="col-md-6">
+        <canvas id="purchaseChart"></canvas>
+    </div>
+</div>
+
 <script>
     const salesCtx = document.getElementById('salesChart').getContext('2d');
     const purchaseCtx = document.getElementById('purchaseChart').getContext('2d');
@@ -81,10 +90,10 @@
     const salesChart = new Chart(salesCtx, {
         type: 'line',
         data: {
-            labels: {{ labels | safe }},
+            labels: {{ sales_labels | default([]) | safe }},
             datasets: [{
                 label: 'Sales',
-                data: {{ sales_data | safe }},
+                data: {{ sales_data | default([]) | safe }},
                 borderColor: 'blue',
                 fill: false,
                 tension: 0.3
@@ -95,10 +104,10 @@
     const purchaseChart = new Chart(purchaseCtx, {
         type: 'line',
         data: {
-            labels: {{ labels | safe }},
+            labels: {{ purchase_labels | default([]) | safe }},
             datasets: [{
                 label: 'Purchases',
-                data: {{ purchase_data | safe }},
+                data: {{ purchase_data | default([]) | safe }},
                 borderColor: 'green',
                 fill: false,
                 tension: 0.3
@@ -106,7 +115,7 @@
         }
     });
 </script>
-
+    
 </body>
 </html>
 
